@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lanka Poverty Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Home Page Styles */
+        .home-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .home-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #bdc3c7;
+        }
+
+        .features {
+            display: flex;
+            gap: 3rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Form Page Styles */
+        .form-page {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .form-header {
+            background: #3498db;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .back-btn {
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #1f5f8b;
+        }
+
+        .form-container {
+            background: white;
+            color: #2c3e50;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .predict-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 2rem auto;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Result Page Styles */
+        .result-page {
+            display: none;
+            height: 100vh;
+            overflow: hidden;
+            padding: 1rem;
+        }
+
+        .result-page.poor {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .result-page.non-poor {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .result-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            height: 100vh;
+            align-items: center;
+        }
+
+        .result-visual {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .result-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .result-chart.poor {
+            background: conic-gradient(#fff 0deg 130deg, rgba(255,255,255,0.3) 130deg 360deg);
+        }
+
+        .result-chart.non-poor {
+            background: conic-gradient(#fff 0deg 310deg, rgba(255,255,255,0.3) 310deg 360deg);
+        }
+
+        .result-details {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .result-message {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.4;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 0.8rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 0.3rem;
+        }
+
+        .recommendations {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .recommendations h4 {
+            color: white;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .recommendations li {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 0.4rem;
+            padding-left: 1.2rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .recommendations li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: white;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .result-btn.primary {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .result-btn.secondary {
+            background: rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .result-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Recommendations Page Styles */
+        .recommendations-page {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            padding: 2rem;
+        }
+
+        .recommendations-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .recommendations-header {
+            background: #3498db;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .recommendations-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .recommendations-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .rec-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .rec-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .rec-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rec-section li {
+            color: #34495e;
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .rec-section li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .contact-item {
+            background: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item strong {
+            color: #2c3e50;
+        }
+
+        .contact-phone {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .contact-service {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .rec-buttons {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .rec-buttons .result-btn {
+            margin: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .home-title {
+                font-size: 2.5rem;
+            }
+            
+            .features {
+                gap: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 2rem;
+            }
+            
+            .result-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+            
+            .result-visual {
+                order: 2;
+            }
+            
+            .result-details {
+                order: 1;
+                height: 60vh;
+                padding: 1.5rem;
+            }
+            
+            .result-stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .stat-item {
+                padding: 0.5rem;
+            }
+            
+            .stat-value {
+                font-size: 1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .result-icon {
+                font-size: 3rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .result-chart {
+                width: 100px;
+                height: 100px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="homePage" class="home-page">
+        <div class="container">
+            <h1 class="home-title">🏠 Sri Lanka Poverty Prediction</h1>
+            <p class="home-subtitle">AI-powered poverty assessment system</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <div>High Accuracy</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div>Instant Results</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div>Data-Driven</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <div>Secure & Private</div>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="showFormPage()">🚀 Start Prediction</button>
+        </div>
+    </div>
+
+    <!-- Form Page -->
+    <div id="formPage" class="form-page">
+        <div class="container">
+            <div class="form-header">
+                <button class="back-btn" onclick="showHomePage()">← Back to Home</button>
+                <h2>📋 Household Information Form</h2>
+            </div>
+            
+            <div class="form-container">
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="province">Province</label>
+                            <select id="province" required onchange="updateDistricts()">
+                                <option value="">Select Province</option>
+                                <option value="Western">Western</option>
+                                <option value="Central">Central</option>
+                                <option value="Southern">Southern</option>
+                                <option value="Northern">Northern</option>
+                                <option value="Eastern">Eastern</option>
+                                <option value="North Western">North Western</option>
+                                <option value="North Central">North Central</option>
+                                <option value="Uva">Uva</option>
+                                <option value="Sabaragamuwa">Sabaragamuwa</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="district">District</label>
+                            <select id="district" required>
+                                <option value="">Select Province First</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="age">Age (years)</label>
+                            <input type="number" id="age" min="18" max="100" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="education">Education Level</label>
+                            <select id="education" required>
+                                <option value="">Select Education</option>
+                                <option value="No Education">No Education</option>
+                                <option value="Primary">Primary</option>
+                                <option value="Secondary">Secondary</option>
+                                <option value="Higher Secondary">Higher Secondary</option>
+                                <option value="Graduate">Graduate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="employment">Employment Status</label>
+                            <select id="employment" required>
+                                <option value="">Select Employment</option>
+                                <option value="Employed">Employed</option>
+                                <option value="Unemployed">Unemployed</option>
+                                <option value="Self-Employed">Self-Employed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="income">Monthly Income (LKR)</label>
+                            <input type="number" id="income" min="0" max="500000" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="householdSize">Household Size</label>
+                            <input type="number" id="householdSize" min="1" max="15" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="water">Access to Water</label>
+                            <select id="water" required>
+                                <option value="">Select Option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="electricity">Access to Electricity</label>
+                            <select id="electricity" required>
+                                <option value="">Select Option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="housing">Housing Type</label>
+                            <select id="housing" required>
+                                <option value="">Select Housing Type</option>
+                                <option value="Permanent">Permanent</option>
+                                <option value="Semi-Permanent">Semi-Permanent</option>
+                                <option value="Temporary">Temporary</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="land">Land Ownership</label>
+                            <select id="land" required>
+                                <option value="">Select Option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="predict-btn">🔮 Predict Poverty Level</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Page -->
+    <div id="resultPage" class="result-page">
+        <div class="result-container">
+            <div class="result-visual">
+                <div id="resultIcon" class="result-icon"></div>
+                <div id="resultChart" class="result-chart">
+                    <span id="chartText"></span>
+                </div>
+                <div style="color: white; font-size: 1.1rem; margin-top: 1rem;">
+                    🎯 Model Accuracy: 98.86%
+                </div>
+            </div>
+            
+            <div class="result-details">
+                <h2 id="resultTitle" class="result-title"></h2>
+                <p id="resultMessage" class="result-message"></p>
+                
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="confidenceValue">98.86%</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="riskLevel"></div>
+                        <div class="stat-label">Risk Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="incomeCategory"></div>
+                        <div class="stat-label">Income Category</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="supportNeeded"></div>
+                        <div class="stat-label">Support Level</div>
+                    </div>
+                </div>
+                
+                <div class="result-buttons">
+                    <button class="result-btn primary" onclick="showFormPage()">🔄 New Prediction</button>
+                    <button class="result-btn secondary" onclick="showRecommendations()">📋 View Recommendations</button>
+                    <button class="result-btn secondary" onclick="showHomePage()">🏠 Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Recommendations Page -->
+    <div id="recommendationsPage" class="recommendations-page">
+        <div class="recommendations-container">
+            <div class="recommendations-header">
+                <button class="back-btn" onclick="showResultPageFromRec()">← Back to Results</button>
+                <h2 id="recPageTitle">📋 Detailed Recommendations</h2>
+            </div>
+            
+            <div class="recommendations-content">
+                <div class="rec-section">
+                    <h3>🎯 Immediate Actions</h3>
+                    <ul id="immediateActions"></ul>
+                </div>
+                
+                <div class="rec-section">
+                    <h3>💰 Financial Support</h3>
+                    <ul id="financialSupport"></ul>
+                </div>
+                
+                <div class="rec-section">
+                    <h3>🎓 Education & Skills</h3>
+                    <ul id="educationSkills"></ul>
+                </div>
+                
+                <div class="rec-section">
+                    <h3>🏥 Government Programs</h3>
+                    <ul id="governmentPrograms"></ul>
+                </div>
+                
+                <div class="rec-section">
+                    <h3>🔗 Useful Contacts</h3>
+                    <div id="usefulContacts"></div>
+                </div>
+            </div>
+            
+            <div class="rec-buttons">
+                <button class="result-btn primary" onclick="showFormPage()">🔄 New Prediction</button>
+                <button class="result-btn secondary" onclick="showHomePage()">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // District mapping by province
+        const districtsByProvince = {
+            'Western': ['Colombo', 'Gampaha', 'Kalutara'],
+            'Central': ['Kandy', 'Matale', 'Nuwara Eliya'],
+            'Southern': ['Galle', 'Matara', 'Hambantota'],
+            'Northern': ['Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 'Mullaitivu'],
+            'Eastern': ['Batticaloa', 'Ampara', 'Trincomalee'],
+            'North Western': ['Kurunegala', 'Puttalam'],
+            'North Central': ['Anuradhapura', 'Polonnaruwa'],
+            'Uva': ['Badulla', 'Monaragala'],
+            'Sabaragamuwa': ['Ratnapura', 'Kegalle']
+        };
+
+        function updateDistricts() {
+            const provinceSelect = document.getElementById('province');
+            const districtSelect = document.getElementById('district');
+            const selectedProvince = provinceSelect.value;
+            
+            // Clear existing options
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+            
+            if (selectedProvince && districtsByProvince[selectedProvince]) {
+                districtsByProvince[selectedProvince].forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        }
+
+        let currentPrediction = '';
+        let currentFormData = {};
+
+        function showHomePage() {
+            document.getElementById('homePage').style.display = 'flex';
+            document.getElementById('formPage').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('recommendationsPage').style.display = 'none';
+        }
+
+        function showFormPage() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'block';
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('recommendationsPage').style.display = 'none';
+        }
+
+        function showResultPageFromRec() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'block';
+            document.getElementById('recommendationsPage').style.display = 'none';
+        }
+
+        function showRecommendations() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('recommendationsPage').style.display = 'block';
+            loadRecommendations(currentPrediction, currentFormData);
+        }
+
+        function showResultPage(prediction, formData) {
+            currentPrediction = prediction;
+            currentFormData = formData;
+            const resultPage = document.getElementById('resultPage');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultChart = document.getElementById('resultChart');
+            const chartText = document.getElementById('chartText');
+
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'none';
+            resultPage.style.display = 'block';
+
+            // Calculate additional stats
+            const income = formData.income;
+            let incomeCategory, riskLevel, supportLevel;
+            
+            if (income < 15000) {
+                incomeCategory = 'Low';
+                riskLevel = 'High';
+                supportLevel = 'Critical';
+            } else if (income < 30000) {
+                incomeCategory = 'Medium';
+                riskLevel = 'Medium';
+                supportLevel = 'Moderate';
+            } else {
+                incomeCategory = 'High';
+                riskLevel = 'Low';
+                supportLevel = 'Minimal';
+            }
+
+            if (prediction === 'Poor') {
+                resultPage.className = 'result-page poor';
+                resultIcon.textContent = '⚠️';
+                resultTitle.textContent = 'HOUSEHOLD CLASSIFIED AS POOR';
+                resultMessage.textContent = 'This household requires immediate attention and may benefit from government assistance programs and poverty alleviation initiatives.';
+                resultChart.className = 'result-chart poor';
+                chartText.textContent = '36%';
+                
+                document.getElementById('riskLevel').textContent = 'High';
+                document.getElementById('supportNeeded').textContent = 'Critical';
+                
+            } else {
+                resultPage.className = 'result-page non-poor';
+                resultIcon.textContent = '✅';
+                resultTitle.textContent = 'HOUSEHOLD CLASSIFIED AS NON-POOR';
+                resultMessage.textContent = 'This household demonstrates adequate living conditions and financial stability. Continue maintaining current lifestyle and explore growth opportunities.';
+                resultChart.className = 'result-chart non-poor';
+                chartText.textContent = '86%';
+                
+                document.getElementById('riskLevel').textContent = 'Low';
+                document.getElementById('supportNeeded').textContent = 'Minimal';
+            }
+            
+            document.getElementById('incomeCategory').textContent = incomeCategory;
+        }
+
+        function loadRecommendations(prediction, formData) {
+            if (prediction === 'Poor') {
+                const immediate = ['Register for Samurdhi welfare program', 'Apply for government food assistance', 'Seek emergency financial aid', 'Contact Divisional Secretariat office'];
+                const financial = ['Apply for microfinance loans', 'Join community savings groups', 'Explore agricultural loans', 'Access women development fund'];
+                const education = ['Enroll in vocational training', 'Access computer literacy courses', 'Join skill development workshops', 'Utilize adult education programs'];
+                const government = ['Samurdhi Welfare Program', 'Janasaviya Trust Fund', 'Rural Development Programs', 'Housing Development Programs'];
+                const contacts = [{name: 'Samurdhi Authority', phone: '011-2691691', service: 'Welfare Programs'}, {name: 'Social Services Dept', phone: '011-2696200', service: 'Social Support'}];
+                populateRecommendations(immediate, financial, education, government, contacts);
+            } else {
+                const immediate = ['Open savings account', 'Create monthly budget', 'Consider investments', 'Plan emergency fund'];
+                const financial = ['Explore fixed deposits', 'Consider mutual funds', 'Business loan opportunities', 'Insurance products'];
+                const education = ['Higher education opportunities', 'Professional development', 'Learn new technologies', 'Entrepreneurship training'];
+                const government = ['SME Development', 'Export Development', 'Technology Transfer', 'Business Development Support'];
+                const contacts = [{name: 'SME Development Bank', phone: '011-2448448', service: 'Business Loans'}, {name: 'Export Development Board', phone: '011-2300705', service: 'Export Support'}];
+                populateRecommendations(immediate, financial, education, government, contacts);
+            }
+        }
+        
+        function populateRecommendations(immediate, financial, education, government, contacts) {
+            ['immediateActions', 'financialSupport', 'educationSkills', 'governmentPrograms'].forEach((id, index) => {
+                const list = document.getElementById(id);
+                list.innerHTML = '';
+                [immediate, financial, education, government][index].forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    list.appendChild(li);
+                });
+            });
+            
+            const contactsDiv = document.getElementById('usefulContacts');
+            contactsDiv.innerHTML = '';
+            contacts.forEach(contact => {
+                const div = document.createElement('div');
+                div.className = 'contact-item';
+                div.innerHTML = `<strong>${contact.name}</strong><br><span style="color: #2c3e50; font-weight: bold;">Phone:</span> <span class="contact-phone">${contact.phone}</span><br><span style="color: #2c3e50; font-weight: bold;">Service:</span> <span class="contact-service">${contact.service}</span>`;
+                contactsDiv.appendChild(div);
+            });
+        }
+
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                province: document.getElementById('province').value,
+                district: document.getElementById('district').value,
+                age: parseInt(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                education: document.getElementById('education').value,
+                employment: document.getElementById('employment').value,
+                income: parseInt(document.getElementById('income').value),
+                householdSize: parseInt(document.getElementById('householdSize').value),
+                water: document.getElementById('water').value,
+                electricity: document.getElementById('electricity').value,
+                housing: document.getElementById('housing').value,
+                land: document.getElementById('land').value
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResultPage(result.prediction, formData);
+                } else {
+                    alert('Prediction failed. Please try again.');
+                }
+            } catch (error) {
+                alert('Error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
